@@ -1,4 +1,3 @@
 # Shawbot
 
-A G.B.S. Twitter bot.
-
+Sends the contents of a string array to Twitter at set intervals; a G.B.S. Twitter bot.

@@ -9,17 +9,17 @@
     <Grid>
         <Button x:Name="btnStart" Content="Start" ToolTip="Start the process." HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" Click="btnStart_Click"/>
         <Button x:Name="btnStop" Content="Stop" ToolTip="Stop the process." HorizontalAlignment="Left" Margin="90,10,0,0" VerticalAlignment="Top" Width="75" IsEnabled="False" Click="btnStop_Click"/>
-        <Button x:Name="btnPause" Content="Pause" ToolTip="Pause the process." HorizontalAlignment="Left" Margin="170,10,0,0" VerticalAlignment="Top" Width="75" IsEnabled="False" Click="btnPause_Click"/>
-        <Button x:Name="btnReset" Content="Reset" ToolTip="Reset all parameters to default settings." HorizontalAlignment="Left" Margin="250,10,0,0" VerticalAlignment="Top" Width="75" Click="btnReset_Click"/>
-        <Label x:Name="lblTimestamp" Content="" HorizontalAlignment="Left" Margin="330,6,0,0" VerticalAlignment="Top" Width="235" Foreground="#FF41C341"/>
+        <Button x:Name="btnReset" Content="Reset" ToolTip="Reset all parameters to default settings." HorizontalAlignment="Left" Margin="170,10,0,0" VerticalAlignment="Top" Width="75" Click="btnReset_Click"/>
+        <Label x:Name="lblTimestamp" Content="" HorizontalAlignment="Left" Margin="250,6,0,0" VerticalAlignment="Top" Width="315" Foreground="#FF41C341"/>
         <CheckBox x:Name="ckNoTweet" Content="No Tweet (test mode)" HorizontalAlignment="Left" Margin="10,37,0,0" VerticalAlignment="Top"/>
         <Label Content="Current file being processed:" HorizontalAlignment="Left" Margin="10,71,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.447,-0.231"/>
         <Label x:Name="lblCurrentFile" Content="Label" HorizontalAlignment="Left" Margin="177,71,0,0" VerticalAlignment="Top" Width="304" Foreground="#FFDA923B"/>
         <Label Content="Line:" HorizontalAlignment="Left" Margin="486,71,0,0" VerticalAlignment="Top"/>
         <Label x:Name="lblLine" Content="999999" HorizontalAlignment="Left" Margin="525,71,0,0" VerticalAlignment="Top" Width="50" Foreground="#FFDA923B"/>
-        <Label Content="Most recent tweet:" HorizontalAlignment="Left" Margin="10,102,0,0" VerticalAlignment="Top"/>
-        <TextBlock x:Name="tbTweet" HorizontalAlignment="Left" Margin="124,107,0,0" TextWrapping="Wrap" Text="Lorem ipsum dolor, lorem isum dolor, Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet,lorem ipsum dolor..." VerticalAlignment="Top" Width="451" FontWeight="Bold" IsEnabled="False" />
+        <Label Content="Last tweet:" HorizontalAlignment="Left" Margin="10,102,0,0" VerticalAlignment="Top"/>
+        <TextBlock x:Name="tbTweet" HorizontalAlignment="Left" Margin="81,107,0,0" TextWrapping="Wrap" Text="Lorem ipsum dolor, lorem isum dolor, Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet,lorem ipsum dolor..." VerticalAlignment="Top" Width="494" FontWeight="Bold" IsEnabled="False" />
         <Label Content="Status:" HorizontalAlignment="Left" Margin="10,149,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="tbStatus" HorizontalAlignment="Left" Height="23" Margin="10,175,0,0" TextWrapping="Wrap" VerticalAlignment="Top" IsEnabled="False" Width="565"/>
+        <Label x:Name="lblLength" HorizontalAlignment="Left" Margin="17,123,0,0" VerticalAlignment="Top" Width="47"/>
     </Grid>
 </Window>
