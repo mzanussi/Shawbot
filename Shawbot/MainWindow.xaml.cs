@@ -44,13 +44,7 @@ namespace Shawbot
         {
             InitializeComponent();
 
-            log.Info("*** Shawbot started.");
-
-            // open text file for processing
-            if (!OpenFileForProcessing())
-            {
-                return;
-            }
+            log.Info("*** Shawbot launched ***");
 
             // The key file consists of the following information, each on its own line:
             //   access token
@@ -85,6 +79,12 @@ namespace Shawbot
                 return;
             }
 
+            // open text file for processing
+            if (!OpenFileForProcessing())
+            {
+                return;
+            }
+
             // timer setup
             timer.Tick += new EventHandler(dispatchTimer_Tick);
             timer.Interval = new TimeSpan(0, 0, INTERVAL);
@@ -108,6 +108,7 @@ namespace Shawbot
             Debug.Assert(tweet.Length <= 140, "found tweet > 140 chars");
             // update tweet status
             tbStatus.Text = "SUCCESS!  (" + DateTime.Now + ")";
+            tbStatus.Foreground = new SolidColorBrush(Colors.Green);
             // if successful: 
             //   increment last line processed and update UI
             lineNo++;
@@ -131,19 +132,17 @@ namespace Shawbot
         }
 
         /// <summary>
-        /// Open a file for processing. First get the file number and last line processed
-        /// from settings, then open the file and load into an array. The files aren't
-        /// altogether too large so this is acceptable.
+        /// Open a file for processing. First get the file number and current line to
+        /// process from settings, then open the file and load into a string array.  
+        /// The files aren't altogether too large so this is acceptable.
         /// </summary>
         private bool OpenFileForProcessing()
         {
-            log.Info("Open file for processing...");
+            log.Info("Open file for processing.");
 
-            // From app settings, get file number and last line processed.
+            // From app settings, get file number and current line to process.
             fileNo = Shawbot.Properties.Settings.Default.Fileno;
             lineNo = Shawbot.Properties.Settings.Default.Lineno;
-            log.Info("File number: " + fileNo);
-            log.Info("Line number: " + lineNo);
 
             try
             {
@@ -164,12 +163,26 @@ namespace Shawbot
                     // aren't generally very long so this should not be an issue.
                     filename = filelist[fileNo];
                     fileContents = Tweetify(filename);
+                    // Log useful info
+                    log.Info("File number: " + fileNo);
+                    log.Info("Line number: " + lineNo);
+                    log.Info("Filename: " + filename);
+                    if (fileContents == null)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        log.Info("File contents length: " + fileContents.Length + " lines");
+                    }
                 }
                 else
                 {
                     log.Error("Filelist appears empty.");
                     lblCurrentFile.Content = "No files in filelist to process.";
                     lblCurrentFile.Foreground = new SolidColorBrush(Colors.Red);
+                    btnStart.IsEnabled = false;
+                    btnReset.IsEnabled = false;
                     return false;
                 }
             }
@@ -178,6 +191,8 @@ namespace Shawbot
                 log.Error("FileNotFoundException: Cannot load filelist.");
                 lblCurrentFile.Content = "Cannot load filelist.";
                 lblCurrentFile.Foreground = new SolidColorBrush(Colors.Red);
+                btnStart.IsEnabled = false;
+                btnReset.IsEnabled = false;
                 return false;
             }
             catch (Exception)
@@ -185,6 +200,8 @@ namespace Shawbot
                 log.Error("Exception: Problem encountered loading filelist.");
                 lblCurrentFile.Content = "Cannot load filelist, problem with file.";
                 lblCurrentFile.Foreground = new SolidColorBrush(Colors.Red);
+                btnStart.IsEnabled = false;
+                btnReset.IsEnabled = false;
                 return false;
             }
 
@@ -228,15 +245,18 @@ namespace Shawbot
 
             using (StreamReader sr = new StreamReader(filename))
             {
-                // TODO: first line is hashtag name for file
+                // First line of file is a hashtag name for file.
+                // Stop if no hashtag was found.
                 if (sr.Peek() >= 0)
                 {
                     string line = sr.ReadLine();
                     if (line[0] != '#')
                     {
-                        log.Error("Hashtag not found.");
-                        tbStatus.Text = "Hashtag not found.";
+                        log.Error("Hashtag not found in file " + filename);
+                        tbStatus.Text = "Hashtag not found in file " + filename;
                         tbStatus.Foreground = new SolidColorBrush(Colors.Red);
+                        btnStart.IsEnabled = false;
+                        btnReset.IsEnabled = false;
                         return null;
                     } else
                     {
@@ -248,6 +268,8 @@ namespace Shawbot
                     log.Error("Unexpected end of file encountered.");
                     tbStatus.Text = "Unexpected end of file encountered.";
                     tbStatus.Foreground = new SolidColorBrush(Colors.Red);
+                    btnStart.IsEnabled = false;
+                    btnReset.IsEnabled = false;
                     return null;
                 }
 
