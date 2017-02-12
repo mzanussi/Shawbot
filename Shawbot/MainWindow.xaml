@@ -5,20 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Shawbot"
         mc:Ignorable="d"
-        Title="Shawbot" Height="250" Width="600" ResizeMode="CanMinimize">
+        Title="Shawbot" Height="200" Width="600" ResizeMode="CanMinimize">
     <Grid>
         <Button x:Name="btnStart" Content="Start" ToolTip="Start the process." HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" Click="btnStart_Click"/>
         <Button x:Name="btnStop" Content="Stop" ToolTip="Stop the process." HorizontalAlignment="Left" Margin="90,10,0,0" VerticalAlignment="Top" Width="75" IsEnabled="False" Click="btnStop_Click"/>
         <Button x:Name="btnReset" Content="Reset" ToolTip="Reset all parameters to default settings." HorizontalAlignment="Left" Margin="170,10,0,0" VerticalAlignment="Top" Width="75" Click="btnReset_Click"/>
-        <Label x:Name="lblTimestamp" Content="" HorizontalAlignment="Left" Margin="250,6,0,0" VerticalAlignment="Top" Width="315" Foreground="#FF41C341"/>
-        <Label Content="Current file being processed:" HorizontalAlignment="Left" Margin="10,71,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.447,-0.231"/>
-        <Label x:Name="lblCurrentFile" Content="" HorizontalAlignment="Left" Margin="177,71,0,0" VerticalAlignment="Top" Width="304" Foreground="#FFDA923B"/>
-        <Label Content="Line:" HorizontalAlignment="Left" Margin="486,71,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="lblLine" Content="" HorizontalAlignment="Left" Margin="525,71,0,0" VerticalAlignment="Top" Width="50" Foreground="#FFDA923B"/>
-        <Label Content="Last tweet:" HorizontalAlignment="Left" Margin="10,102,0,0" VerticalAlignment="Top"/>
-        <TextBlock x:Name="tbTweet" HorizontalAlignment="Left" Margin="81,107,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="494" FontWeight="Bold" IsEnabled="False" />
-        <Label Content="Status:" HorizontalAlignment="Left" Margin="10,149,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="tbStatus" HorizontalAlignment="Left" Height="23" Margin="10,175,0,0" TextWrapping="Wrap" VerticalAlignment="Top" IsEnabled="False" Width="565"/>
-        <Label x:Name="lblLength" HorizontalAlignment="Left" Margin="17,123,0,0" VerticalAlignment="Top" Width="47"/>
+        <Label x:Name="lblTimestamp" Content="" HorizontalAlignment="Left" Margin="250,6,0,0" VerticalAlignment="Top" Width="315" Foreground="DodgerBlue"/>
+        <Label Content="Current file being processed:" HorizontalAlignment="Left" Margin="10,42,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.447,-0.231"/>
+        <Label x:Name="lblCurrentFile" Content="" HorizontalAlignment="Left" Margin="177,42,0,0" VerticalAlignment="Top" Width="304" Foreground="#FFDA923B"/>
+        <Label Content="Line:" HorizontalAlignment="Left" Margin="486,42,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="lblLine" Content="" HorizontalAlignment="Left" Margin="525,42,0,0" VerticalAlignment="Top" Width="50" Foreground="#FFDA923B"/>
+        <Label Content="Tweet:" HorizontalAlignment="Left" Margin="10,73,0,0" VerticalAlignment="Top"/>
+        <TextBlock x:Name="tbTweet" HorizontalAlignment="Left" Margin="58,78,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="517" FontWeight="Bold" IsEnabled="False" />
+        <Label x:Name="lblLength" Content="" Foreground="DodgerBlue" HorizontalAlignment="Left" Margin="17,94,0,0" VerticalAlignment="Top" Width="47"/>
+        <Label Content="Status:" HorizontalAlignment="Left" Margin="10,120,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="lblStatus" Content="" HorizontalAlignment="Left" Margin="55,120,0,0" VerticalAlignment="Top" Width="530"/>
     </Grid>
 </Window>

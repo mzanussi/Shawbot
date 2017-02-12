@@ -25,7 +25,7 @@ namespace Shawbot
         private int lineNo = 0;                             // line number to process (0-based)
         private string filename;                            // current file being processed
         private string[] fileContents;                      // contents of the file
-        private string hashtag;
+        private string kHashtag;                            // text hashtag for Tweeting
 
         // Twitter keys.
         private string accessToken;
@@ -63,8 +63,8 @@ namespace Shawbot
             catch (FileNotFoundException)
             {
                 log.Error("FileNotFoundException: Cannot load Twitter key file.");
-                tbStatus.Text = "Cannot load Twitter key file.";
-                tbStatus.Foreground = new SolidColorBrush(Colors.Red);
+                lblStatus.Content = "Cannot load Twitter key file.";
+                lblStatus.Foreground = new SolidColorBrush(Colors.Red);
                 btnStart.IsEnabled = false;
                 btnReset.IsEnabled = false;
                 return;
@@ -72,8 +72,8 @@ namespace Shawbot
             catch (Exception)
             {
                 log.Error("Exception: Problem encountered loading Twitter keys.");
-                tbStatus.Text = "Cannot load Twitter keys, problem with file.";
-                tbStatus.Foreground = new SolidColorBrush(Colors.Red);
+                lblStatus.Content = "Cannot load Twitter keys, problem with file.";
+                lblStatus.Foreground = new SolidColorBrush(Colors.Red);
                 btnStart.IsEnabled = false;
                 btnReset.IsEnabled = false;
                 return;
@@ -107,8 +107,8 @@ namespace Shawbot
             // TEST ONLY
             Debug.Assert(tweet.Length <= 140, "found tweet > 140 chars");
             // update tweet status
-            tbStatus.Text = "SUCCESS!  (" + DateTime.Now + ")";
-            tbStatus.Foreground = new SolidColorBrush(Colors.Green);
+            lblStatus.Content = "SUCCESS!  (" + DateTime.Now + ")";
+            lblStatus.Foreground = new SolidColorBrush(Colors.Green);
             // if successful: 
             //   increment last line processed and update UI
             lineNo++;
@@ -214,19 +214,19 @@ namespace Shawbot
         /// </summary>
         private void ChunkIt(string line, ArrayList lines)
         {
-            if (line.Length + 1 + hashtag.Length <= TWEET_LEN)
+            if (line.Length + 1 + kHashtag.Length <= TWEET_LEN)
             {
-                lines.Add(line + " " + hashtag);
+                lines.Add(line + " " + kHashtag);
             }
             else
             {
-                int ptr = TWEET_LEN - CONTINUED.Length - 1 - hashtag.Length - 1;
+                int ptr = TWEET_LEN - CONTINUED.Length - 1 - kHashtag.Length - 1;
                 while (line[ptr] != ' ')
                 {
                     ptr--;
                 }
                 string str = line.Substring(0, ptr);
-                str = str.TrimEnd() + CONTINUED + " " + hashtag;
+                str = str.TrimEnd() + CONTINUED + " " + kHashtag;
                 lines.Add(str);
                 ChunkIt(line.Substring(ptr + 1), lines);
             }
@@ -253,21 +253,21 @@ namespace Shawbot
                     if (line[0] != '#')
                     {
                         log.Error("Hashtag not found in file " + filename);
-                        tbStatus.Text = "Hashtag not found in file " + filename;
-                        tbStatus.Foreground = new SolidColorBrush(Colors.Red);
+                        lblStatus.Content = "Hashtag not found in file " + filename;
+                        lblStatus.Foreground = new SolidColorBrush(Colors.Red);
                         btnStart.IsEnabled = false;
                         btnReset.IsEnabled = false;
                         return null;
                     } else
                     {
-                        hashtag = line;
+                        kHashtag = line;
                     }
                 }
                 else
                 {
                     log.Error("Unexpected end of file encountered.");
-                    tbStatus.Text = "Unexpected end of file encountered.";
-                    tbStatus.Foreground = new SolidColorBrush(Colors.Red);
+                    lblStatus.Content = "Unexpected end of file encountered.";
+                    lblStatus.Foreground = new SolidColorBrush(Colors.Red);
                     btnStart.IsEnabled = false;
                     btnReset.IsEnabled = false;
                     return null;
@@ -307,10 +307,10 @@ namespace Shawbot
                         // If line is <= 140 characters (with hashtag added) just output 
                         // the line plus the hashtag. Otherwise, break up line into 
                         // <= 140 chararacter chunks.
-                        if (cur_line.Length + 1 + hashtag.Length <= TWEET_LEN)
+                        if (cur_line.Length + 1 + kHashtag.Length <= TWEET_LEN)
                         {
                             line_count++;
-                            contents.Add(cur_line + " " + hashtag);
+                            contents.Add(cur_line + " " + kHashtag);
                         }
                         else
                         {
@@ -370,7 +370,7 @@ namespace Shawbot
             lblLine.Content = "";
             tbTweet.Text = "";
             lblLength.Content = "";
-            tbStatus.Text = "";
+            lblStatus.Content = "";
 
             // now open file for processing
             if (!OpenFileForProcessing())
