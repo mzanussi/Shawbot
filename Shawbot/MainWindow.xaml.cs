@@ -220,7 +220,7 @@ namespace Shawbot
             }
             else
             {
-                int ptr = TWEET_LEN - CONTINUED.Length - 1 - kHashtag.Length - 1;
+                int ptr = TWEET_LEN - CONTINUED.Length - kHashtag.Length - 1;
                 while (line[ptr] != ' ')
                 {
                     ptr--;
