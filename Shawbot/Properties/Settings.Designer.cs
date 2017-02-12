@@ -38,12 +38,12 @@ namespace Shawbot.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int Lastline {
+        public int Lineno {
             get {
-                return ((int)(this["Lastline"]));
+                return ((int)(this["Lineno"]));
             }
             set {
-                this["Lastline"] = value;
+                this["Lineno"] = value;
             }
         }
     }

@@ -1,6 +1,7 @@
 ﻿using log4net;
 using System;
 using System.Collections;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Media;
@@ -21,9 +22,9 @@ namespace Shawbot
         private string timestamp = "";                      // process start time
 
         private int fileNo = 0;                             // file number being processed (0-based)
-        private int lastLine = 0;                           // last line processed
+        private int lineNo = 0;                             // line number to process (0-based)
         private string filename;                            // current file being processed
-        private string[] file;                              // contents of the file
+        private string[] fileContents;                      // contents of the file
         private string hashtag;
 
         // Twitter keys.
@@ -34,7 +35,7 @@ namespace Shawbot
 
         // A timer and its interval.
         private DispatcherTimer timer = new DispatcherTimer();
-        private const int INTERVAL = 10;    // in minutes
+        private const int INTERVAL = 2;    // in minutes
 
         // log4net
         private static readonly ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -43,7 +44,7 @@ namespace Shawbot
         {
             InitializeComponent();
 
-            log.Info("Shawbot started.");
+            log.Info("*** Shawbot started.");
 
             // open text file for processing
             if (!OpenFileForProcessing())
@@ -95,22 +96,38 @@ namespace Shawbot
         private void dispatchTimer_Tick(object sender, EventArgs e)
         {
             // fetch next line to tweet
-            //    TODO: bounds checking
-            string tweet = file[lastLine + 1];
-            // tweet it
+            string tweet = fileContents[lineNo];
+            // update UI
+            lblCurrentFile.Content = filename;
+            lblLine.Content = "" + lineNo;
             tbTweet.Text = tweet;
             lblLength.Content = tweet.Length;
-            // update status line
-            //   (test)
+            log.Info("TWEET (" + tweet.Length + "): " + tweet);
+            // tweet it
+            // TEST ONLY
+            Debug.Assert(tweet.Length <= 140, "found tweet > 140 chars");
+            // update tweet status
             tbStatus.Text = "SUCCESS!  (" + DateTime.Now + ")";
             // if successful: 
             //   increment last line processed and update UI
-            lastLine++;
-            lblLine.Content = "" + lastLine;
+            lineNo++;
             //   if eof, get next file name to process, update internal fileno, reset last line to 0
             //   update internal lastline
-            Shawbot.Properties.Settings.Default.Lastline = lastLine;
-            Shawbot.Properties.Settings.Default.Save();
+            if (lineNo >= fileContents.Length)
+            {
+                log.Info("Completed processing " + filename + ". Open next file.");
+                fileNo++;
+                Shawbot.Properties.Settings.Default.Fileno = fileNo;
+                Shawbot.Properties.Settings.Default.Lineno = 0;
+                Shawbot.Properties.Settings.Default.Save();
+                // todo: check return
+                OpenFileForProcessing();
+            }
+            else
+            {
+                Shawbot.Properties.Settings.Default.Lineno = lineNo;
+                Shawbot.Properties.Settings.Default.Save();
+            }
         }
 
         /// <summary>
@@ -124,9 +141,9 @@ namespace Shawbot
 
             // From app settings, get file number and last line processed.
             fileNo = Shawbot.Properties.Settings.Default.Fileno;
-            lastLine = Shawbot.Properties.Settings.Default.Lastline;
+            lineNo = Shawbot.Properties.Settings.Default.Lineno;
             log.Info("File number: " + fileNo);
-            log.Info("Last line: " + lastLine);
+            log.Info("Line number: " + lineNo);
 
             try
             {
@@ -136,14 +153,19 @@ namespace Shawbot
 
                 if (filelist.Length > 0)
                 {
-                    // open file for processing
+                    // if past the last file in the list, reset to 0.
+                    if (fileNo >= filelist.Length)
+                    {
+                        Shawbot.Properties.Settings.Default.Fileno = 0;
+                        Shawbot.Properties.Settings.Default.Lineno = 0;
+                        Shawbot.Properties.Settings.Default.Save();
+                    }
+                    // Load the file into memory and proceed from there. The files
+                    // aren't generally very long so this should not be an issue.
                     filename = filelist[fileNo];
-                    // or better, just load the file into memory and
-                    // proceed from there. the files aren't generally
-                    // very long so this should not be an issue.
-                    file = Tweetify(filename);
-
-                } else
+                    fileContents = Tweetify(filename);
+                }
+                else
                 {
                     log.Error("Filelist appears empty.");
                     lblCurrentFile.Content = "No files in filelist to process.";
@@ -165,16 +187,6 @@ namespace Shawbot
                 lblCurrentFile.Foreground = new SolidColorBrush(Colors.Red);
                 return false;
             }
-
-            // update UI
-            lblCurrentFile.Content = filename;
-            lblLine.Content = "";
-            if (lastLine != 0)
-            {
-                lblLine.Content = "" + lastLine;
-            }
-            tbTweet.Text = "";
-            tbStatus.Text = "";
 
             return true;
         }
@@ -297,12 +309,12 @@ namespace Shawbot
 
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
+            log.Info("Start button clicked.");
             // UI setup
             btnStart.IsEnabled = false;
             btnStop.IsEnabled = true;
             btnStop.Focus();
             btnReset.IsEnabled = false;
-            ckNoTweet.IsEnabled = false;
 
             timestamp = DateTime.Now.ToString();
             lblTimestamp.Content = "(running since " + timestamp + ")";
@@ -313,11 +325,12 @@ namespace Shawbot
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
+            log.Info("Stop button clicked.");
+
             btnStart.IsEnabled = true;
             btnStart.Focus();
             btnStop.IsEnabled = false;
             btnReset.IsEnabled = true;
-            ckNoTweet.IsEnabled = true;
             lblTimestamp.Content = "";
             // stop the timer
             timer.Stop();
@@ -325,10 +338,18 @@ namespace Shawbot
 
         private void btnReset_Click(object sender, RoutedEventArgs e)
         {
-            // reset parameters (current file # to 1, current line # to 1)
+            log.Info("Reset button clicked.");
+
+            // reset parameters (current file # to 0, current line # to 0)
             Shawbot.Properties.Settings.Default.Fileno = 0;
-            Shawbot.Properties.Settings.Default.Lastline = 0;
+            Shawbot.Properties.Settings.Default.Lineno = 0;
             Shawbot.Properties.Settings.Default.Save();
+            lblCurrentFile.Content = "";
+            lblLine.Content = "";
+            tbTweet.Text = "";
+            lblLength.Content = "";
+            tbStatus.Text = "";
+
             // now open file for processing
             if (!OpenFileForProcessing())
             {
