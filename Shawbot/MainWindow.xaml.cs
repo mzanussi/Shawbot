@@ -6,6 +6,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
+using TwitterClient;
 
 namespace Shawbot
 {
@@ -35,10 +36,14 @@ namespace Shawbot
 
         // A timer and its interval.
         private DispatcherTimer timer = new DispatcherTimer();
-        private const int INTERVAL = 2;    // in minutes
+        private const int INTERVAL = 5;    // in minutes
 
         // log4net
         private static readonly ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        // TwitterClient
+        // https://gist.github.com/sdesalas/c82b92200816ecc83af1
+        private static API api;
 
         public MainWindow()
         {
@@ -59,6 +64,8 @@ namespace Shawbot
                 consumerKey = keys[2];
                 consumerSecret = keys[3];
                 log.Info("Twitter keys loaded successfully!");
+                // instantiate TwitterClient api
+                api = new API(accessToken, accessTokenSecret, consumerKey, consumerSecret);
             }
             catch (FileNotFoundException)
             {
@@ -87,7 +94,7 @@ namespace Shawbot
 
             // timer setup
             timer.Tick += new EventHandler(dispatchTimer_Tick);
-            timer.Interval = new TimeSpan(0, 0, INTERVAL);
+            timer.Interval = new TimeSpan(0, INTERVAL, 0);
 
             // update UI
             btnStart.Focus();
@@ -104,14 +111,24 @@ namespace Shawbot
             lblLength.Content = tweet.Length;
             log.Info("TWEET (" + tweet.Length + "): " + tweet);
             // tweet it
-            // TEST ONLY
-            Debug.Assert(tweet.Length <= 140, "found tweet > 140 chars");
-            // update tweet status
-            lblStatus.Content = "SUCCESS!  (" + DateTime.Now + ")";
-            lblStatus.Foreground = new SolidColorBrush(Colors.Green);
-            // if successful: 
-            //   increment last line processed and update UI
-            lineNo++;
+            try
+            {
+                api.Post("statuses/update.json", new Parameters { {"status", tweet} });
+                // update tweet status
+                lblStatus.Content = "SUCCESS! (" + DateTime.Now + ")";
+                lblStatus.Foreground = new SolidColorBrush(Colors.Green);
+                // if successful: 
+                //   increment last line processed and update UI
+                lineNo++;
+            }
+            catch (Exception ex)
+            {
+                lblStatus.Content = "FAILURE! (" + DateTime.Now + ") - " + ex.Message;
+                lblStatus.Foreground = new SolidColorBrush(Colors.Red);
+                log.Error(ex.Message);
+                log.Error(ex.StackTrace);
+                return;
+            }
             //   if eof, get next file name to process, update internal fileno, reset last line to 0
             //   update internal lastline
             if (lineNo >= fileContents.Length)
@@ -153,10 +170,13 @@ namespace Shawbot
                 if (filelist.Length > 0)
                 {
                     // if past the last file in the list, reset to 0.
-                    if (fileNo >= filelist.Length)
+                    if (fileNo == filelist.Length)
                     {
-                        Shawbot.Properties.Settings.Default.Fileno = 0;
-                        Shawbot.Properties.Settings.Default.Lineno = 0;
+                        log.Info("Last file completed, resetting to 0.");
+                        fileNo = 0;
+                        lineNo = 0;
+                        Shawbot.Properties.Settings.Default.Fileno = fileNo;
+                        Shawbot.Properties.Settings.Default.Lineno = lineNo;
                         Shawbot.Properties.Settings.Default.Save();
                     }
                     // Load the file into memory and proceed from there. The files
