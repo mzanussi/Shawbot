@@ -42,6 +42,7 @@ namespace Shawbot
         private static readonly ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         // TwitterClient
+        // courtesy of:
         // https://gist.github.com/sdesalas/c82b92200816ecc83af1
         private static API api;
 
@@ -100,6 +101,10 @@ namespace Shawbot
             btnStart.Focus();
         }
 
+        /// <summary>
+        /// Next timer interval has been reached, Tweet something.
+        /// Oh, and do a bunch of other UI and internal stuff.
+        /// </summary>
         private void dispatchTimer_Tick(object sender, EventArgs e)
         {
             // fetch next line to tweet
@@ -113,12 +118,12 @@ namespace Shawbot
             // tweet it
             try
             {
+                // post the tweet
                 api.Post("statuses/update.json", new Parameters { {"status", tweet} });
                 // update tweet status
                 lblStatus.Content = "SUCCESS! (" + DateTime.Now + ")";
                 lblStatus.Foreground = new SolidColorBrush(Colors.Green);
-                // if successful: 
-                //   increment last line processed and update UI
+                // increment last line processed
                 lineNo++;
             }
             catch (Exception ex)
@@ -129,8 +134,8 @@ namespace Shawbot
                 log.Error(ex.StackTrace);
                 return;
             }
-            //   if eof, get next file name to process, update internal fileno, reset last line to 0
-            //   update internal lastline
+            // if eof, get next file name to process, update internal fileno, 
+            // reset last line to 0
             if (lineNo >= fileContents.Length)
             {
                 log.Info("Completed processing " + filename + ". Open next file.");
@@ -138,8 +143,10 @@ namespace Shawbot
                 Shawbot.Properties.Settings.Default.Fileno = fileNo;
                 Shawbot.Properties.Settings.Default.Lineno = 0;
                 Shawbot.Properties.Settings.Default.Save();
-                // todo: check return
-                OpenFileForProcessing();
+                if (!OpenFileForProcessing())
+                {
+                    return;
+                }
             }
             else
             {
