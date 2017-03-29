@@ -1,6 +1,7 @@
 ﻿using log4net;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -66,7 +67,7 @@ namespace Shawbot
                 consumerSecret = keys[3];
                 log.Info("Twitter keys loaded successfully!");
                 // instantiate TwitterClient api
-                api = new API(accessToken, accessTokenSecret, consumerKey, consumerSecret);
+                api = new API(accessToken, accessTokenSecret, consumerKey, consumerSecret, log);
             }
             catch (FileNotFoundException)
             {
@@ -119,7 +120,7 @@ namespace Shawbot
             try
             {
                 // post the tweet
-                api.Post("statuses/update.json", new Parameters { {"status", tweet} });
+                List<JSONObject> result = api.Post("statuses/update.json", new Parameters { {"status", tweet} });
                 // update tweet status
                 lblStatus.Content = "SUCCESS! (" + DateTime.Now + ")";
                 lblStatus.Foreground = new SolidColorBrush(Colors.Green);

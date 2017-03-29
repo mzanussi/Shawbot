@@ -1,3 +1,4 @@
+using log4net;
 using System;
 using System.IO;
 using System.Collections;
@@ -22,6 +23,8 @@ namespace TwitterClient
 
         public readonly string BaseUrl = "https://api.twitter.com/1.1/";
 
+        private readonly ILog log;
+
         public API() { }
 
         /// <summary>
@@ -31,13 +34,14 @@ namespace TwitterClient
         /// <param name="accessTokenSecret"></param>
         /// <param name="consumerKey"></param>
         /// <param name="consumerSecret"></param>
-        public API(string accessToken, string accessTokenSecret, string consumerKey, string consumerSecret)
+        public API(string accessToken, string accessTokenSecret, string consumerKey, string consumerSecret, ILog alog)
         {
             Tokens = new OAuth.Tokens();
             Tokens.AccessToken = accessToken;
             Tokens.AccessTokenSecret = accessTokenSecret;
             Tokens.ConsumerKey = consumerKey;
             Tokens.ConsumerSecret = consumerSecret;
+            log = alog;
         }
 
         /// <summary>
@@ -116,9 +120,11 @@ namespace TwitterClient
                     }
                 }
             }
-            catch (Exception ex)
+            catch (WebException ex)
             {
                 request.Abort();
+                var resp = new StreamReader(ex.Response.GetResponseStream()).ReadToEnd();
+                log.Error("WebException. Response: " + resp);
                 throw ex;
             }
         }
