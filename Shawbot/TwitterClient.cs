@@ -25,6 +25,10 @@ namespace TwitterClient
 
         private readonly ILog log;
 
+        // In the event of a WebException, an error should be found in 
+        // the response from Twitter. Extract the Json and put it here.
+        private string responseError;
+
         public API() { }
 
         /// <summary>
@@ -91,6 +95,9 @@ namespace TwitterClient
 
         private List<JSONObject> Request(RequestType type, string urlFragment, Parameters parameters)
         {
+            // Reset error message between Requests
+            responseError = "";
+
             Uri uri = GetUri(type, urlFragment, parameters);
             WebRequest request = HttpWebRequest.Create(uri);
             request.Method = type.ToString();
@@ -123,10 +130,15 @@ namespace TwitterClient
             catch (WebException ex)
             {
                 request.Abort();
-                var resp = new StreamReader(ex.Response.GetResponseStream()).ReadToEnd();
-                log.Error("WebException. Response: " + resp);
+                responseError = new StreamReader(ex.Response.GetResponseStream()).ReadToEnd();
+                log.Error("WebException. Response: " + responseError);
                 throw ex;
             }
+        }
+
+        public string GetResponseError()
+        {
+            return responseError;
         }
 
         private Uri GetUri(RequestType type, string urlFragment, Parameters parameters)

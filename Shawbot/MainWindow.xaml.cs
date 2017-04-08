@@ -74,6 +74,7 @@ namespace Shawbot
                 log.Error("FileNotFoundException: Cannot load Twitter key file.");
                 lblStatus.Content = "Cannot load Twitter key file.";
                 lblStatus.Foreground = new SolidColorBrush(Colors.Red);
+                lblStatus2.Content = "";
                 btnStart.IsEnabled = false;
                 btnReset.IsEnabled = false;
                 return;
@@ -83,6 +84,7 @@ namespace Shawbot
                 log.Error("Exception: Problem encountered loading Twitter keys.");
                 lblStatus.Content = "Cannot load Twitter keys, problem with file.";
                 lblStatus.Foreground = new SolidColorBrush(Colors.Red);
+                lblStatus2.Content = "";
                 btnStart.IsEnabled = false;
                 btnReset.IsEnabled = false;
                 return;
@@ -124,6 +126,7 @@ namespace Shawbot
                 // update tweet status
                 lblStatus.Content = "SUCCESS! (" + DateTime.Now + ")";
                 lblStatus.Foreground = new SolidColorBrush(Colors.Green);
+                lblStatus2.Content = "";
                 // increment last line processed
                 lineNo++;
             }
@@ -133,6 +136,14 @@ namespace Shawbot
                 lblStatus.Foreground = new SolidColorBrush(Colors.Red);
                 log.Error(ex.Message);
                 log.Error(ex.StackTrace);
+                // errorMessage is Json, but let's be lazy and just dump it in label.
+                // however, it should be properly handled here, so that if it's a 
+                // fatal-type error (e.g. duplicate tweet) the bot should stop
+                // trying to post the tweet so that Twitter is not flooded with
+                // repeated invalid requests. but it it's non-fatal, like unable
+                // to reach Twitter, just let the bot keep trying until successful.
+                lblStatus2.Content = api.GetResponseError();
+                lblStatus2.Foreground = new SolidColorBrush(Colors.Red);
                 return;
             }
             // if eof, get next file name to process, update internal fileno, 
@@ -283,6 +294,7 @@ namespace Shawbot
                         log.Error("Hashtag not found in file " + filename);
                         lblStatus.Content = "Hashtag not found in file " + filename;
                         lblStatus.Foreground = new SolidColorBrush(Colors.Red);
+                        lblStatus2.Content = "";
                         btnStart.IsEnabled = false;
                         btnReset.IsEnabled = false;
                         return null;
@@ -296,6 +308,7 @@ namespace Shawbot
                     log.Error("Unexpected end of file encountered.");
                     lblStatus.Content = "Unexpected end of file encountered.";
                     lblStatus.Foreground = new SolidColorBrush(Colors.Red);
+                    lblStatus2.Content = "";
                     btnStart.IsEnabled = false;
                     btnReset.IsEnabled = false;
                     return null;
@@ -399,6 +412,7 @@ namespace Shawbot
             tbTweet.Text = "";
             lblLength.Content = "";
             lblStatus.Content = "";
+            lblStatus2.Content = "";
 
             // now open file for processing
             if (!OpenFileForProcessing())
