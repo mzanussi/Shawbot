@@ -37,7 +37,7 @@ namespace Shawbot
 
         // A timer and its interval.
         private DispatcherTimer timer = new DispatcherTimer();
-        private const int INTERVAL = 5;    // in minutes
+        private const int INTERVAL = 12;    // in minutes
 
         // log4net
         private static readonly ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
